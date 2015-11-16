@@ -1,5 +1,8 @@
 *.jpg
 *.spyderproject
+*.xcf
+*.xml
+*.iml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -58,3 +61,5 @@ docs/_build/
 
 # PyBuilder
 target/
+*.pdf
+*.jpg.pp3
