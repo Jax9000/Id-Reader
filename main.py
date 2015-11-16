@@ -1,8 +1,23 @@
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
+import os
 
-Xsize, Ysize = 400, 300
+Xsize, Ysize = 510, 300
+
+files = 31
+template = './template.jpg'
+#zdjecia powinny byc w notacji i.jpg dla i = 1, 2, 3...
+dirPath = './images1/'           #input
+saveDirPath = './TESTS/' + dirPath  #output
+
+def transform2default(img, dst):
+    pts1 = np.float32(dst)
+    pts2 = np.float32([[0,0],[0,Ysize],[Xsize,Ysize],[Xsize,0]])
+    M = cv2.getPerspectiveTransform(pts1,pts2)
+    return cv2.warpPerspective(img,M,(Xsize,Ysize))
+
+
              #(template, searchableImg)
 def findObject(img1,img2):
     # Initiate SIFT detector
@@ -38,11 +53,7 @@ def findObject(img1,img2):
         h,w,temp = img1.shape
         pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
         dst = cv2.perspectiveTransform(pts,M)
-
-        pts1 = np.float32(dst)
-        pts2 = np.float32([[0,0],[0,Ysize],[Xsize,Ysize],[Xsize,0]])
-        M = cv2.getPerspectiveTransform(pts1,pts2)
-        foundedObject = cv2.warpPerspective(img2,M,(Xsize,Ysize))
+        foundedObject = transform2default(img2, dst)
 
     else:
         print "Not enough matches are found - %d/%d" % (len(good),MIN_MATCH_COUNT)
@@ -53,24 +64,30 @@ def findObject(img1,img2):
 
 
 def main():
-    files = 6
-    
-    template = './template.jpg'
+
     img1 = cv2.imread(template)
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
-    
+
+    if not os.path.exists(saveDirPath):
+        os.makedirs(saveDirPath)
+    if not os.path.exists(dirPath):
+        print 'input directory not exist'
+        return 1
+
     for i in range(files):
-        path = './images1/' + str(i+1) + '.jpg'
-        savePath = './TESTS/sift/images1-flann/SIFT-test'
-               
-        img2 = cv2.imread(path)  
+        path = dirPath + str(i+1) + '.jpg'
+
+        img2 = cv2.imread(path)
         img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
-            
+
         img3 = findObject(img1, img2)
         plt.imshow(img3)
-            
-        path = savePath + str(i+1) + '.jpg'
+
+        path = saveDirPath + str(i+1) + '.jpg'
         plt.imsave(path, img3)
         print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%'
+
+    print 'done'
+
 
 main()
