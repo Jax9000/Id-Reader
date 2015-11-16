@@ -3,13 +3,33 @@ import cv2
 from matplotlib import pyplot as plt
 import os
 
-Xsize, Ysize = 510, 300
+Xsize, Ysize = 510*2, 300*2
+nameX1, nameX2 = 260, 300
+nameY1, nameY2 = 375, 780
+subNameX1, subNameX2 = 185, 230
+subNameY1, subNameY2 = nameY1, nameY2
+faceX1, faceX2 = 185, 495
+faceY1, faceY2 = 70, 350
+signX1, signX2 = 440, 520
+signY1, signY2 = 380, 750
 
-files = 31
+files = 16
 template = './template.jpg'
 #zdjecia powinny byc w notacji i.jpg dla i = 1, 2, 3...
-dirPath = './images1/'           #input
+dirPath = './images/'           #input
 saveDirPath = './TESTS/' + dirPath  #output
+
+def getName(img):
+    return img[nameX1:nameX2, nameY1:nameY2]
+
+def getSubName(img):
+    return img[subNameX1:subNameX2, subNameY1:subNameY2]
+
+def getFace(img): #xD
+    return img[faceX1:faceX2, faceY1:faceY2]
+
+def getSign(img):
+    return img[signX1:signX2, signY1:signY2]
 
 def transform2default(img, dst):
     pts1 = np.float32(dst)
@@ -24,7 +44,6 @@ def findObject(img1,img2):
     sift = cv2.xfeatures2d.SIFT_create()
     MIN_MATCH_COUNT = 10
 
-
     # find the keypoints and descriptors with SIFT
     kp1, des1 = sift.detectAndCompute(img1,None)
     kp2, des2 = sift.detectAndCompute(img2,None)
@@ -35,7 +54,9 @@ def findObject(img1,img2):
 
     flann = cv2.FlannBasedMatcher(index_params, search_params)
 
-    matches = flann.knnMatch(des1,des2,k=2)
+    print 'flann.knnmatch starting!'
+    matches = flann.knnMatch(des1,des2,k=2) # czasem wyjebuje 139 (sigsegv) i chuj wie czemu :)
+    print 'flann.knnmatch done'
 
     # store all the good matches as per Lowe's ratio test.
     good = []
@@ -59,33 +80,36 @@ def findObject(img1,img2):
         print "Not enough matches are found - %d/%d" % (len(good),MIN_MATCH_COUNT)
         matchesMask = None
 
-
     return foundedObject
 
 
 def main():
 
-    img1 = cv2.imread(template)
-    img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
+    # img1 = cv2.imread(template)
+    # if not os.path.exists(saveDirPath):
+    #     os.makedirs(saveDirPath)
+    # if not os.path.exists(dirPath):
+    #     print 'input directory not exist'
+    #     return 1
+    
+    # for i in range(files):
+    #     path = dirPath + str(i+1) + '.jpg'
+    #
+    #     img2 = cv2.imread(path)
+    #     img3 = findObject(img1, img2)
+    #     plt.imshow(img3)
+    #
+    #     path = saveDirPath + str(i+1) + '.jpg'
+    #     cv2.imwrite(path, img3)
+    #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
 
-    if not os.path.exists(saveDirPath):
-        os.makedirs(saveDirPath)
-    if not os.path.exists(dirPath):
-        print 'input directory not exist'
-        return 1
+    path = './8.jpg'
+    img2 = cv2.imread(path)
 
-    for i in range(files):
-        path = dirPath + str(i+1) + '.jpg'
-
-        img2 = cv2.imread(path)
-        img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
-
-        img3 = findObject(img1, img2)
-        plt.imshow(img3)
-
-        path = saveDirPath + str(i+1) + '.jpg'
-        plt.imsave(path, img3)
-        print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%'
+    cv2.imwrite('./face.jpg', getFace(img2))
+    cv2.imwrite('./name.jpg', getName(img2))
+    cv2.imwrite('./subname.jpg', getSubName(img2))
+    cv2.imwrite('./sign.jpg', getSign(img2))
 
     print 'done'
 
