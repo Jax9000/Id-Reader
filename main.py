@@ -41,7 +41,10 @@ def img2str(img):
 def connectVerticaly(imgUP, imgDOWN):
     h1, w1 = imgUP.shape[:2]
     h2, w2 = imgDOWN.shape[:2]
-    vis = np.zeros(((h1+h2), max(w1,w2)), np.uint8)
+    if type(imgUP[0][0]) != type(np.array(0)):
+        vis = np.zeros(((h1+h2), max(w1,w2)), np.uint8)
+    else:
+        vis = np.zeros(((h1+h2), max(w1,w2), 3), np.uint8)
     vis[:h1, :w1] = imgUP
     vis[h1:h2+h1, :w2] = imgDOWN
     return vis
@@ -127,17 +130,9 @@ def main():
     print img2str(getName(img3)).upper()
     print img2str(getSubName(img3)).upper()
 
-
-    cv2.imshow('xD', connectVerticaly(getName(img3), getSubName(img3)))
-
-    # cv2.imshow('picture', getFace(img3))
-    # cv2.imshow('sign', getSign(img3))
-    # cv2.imshow('name', getName(img3))
-    # cv2.imshow('subname', getSubName(img3))
-    #
-    # cv2.moveWindow('sign',x=100,y=10)
-    # cv2.moveWindow('name',x=100,y=80)
-    # cv2.moveWindow('subname',x=100,y=120)
+    imgUp = connectVerticaly(getFace(img3), getSign(img3))
+    imgDown = connectVerticaly(getName(img3), getSubName(img3))
+    cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
