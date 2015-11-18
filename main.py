@@ -11,15 +11,15 @@ nameX1, nameX2 = 260, 300
 nameY1, nameY2 = 375, 780
 subNameX1, subNameX2 = 185, 230
 subNameY1, subNameY2 = nameY1, nameY2
-faceX1, faceX2 = 185, 495
-faceY1, faceY2 = 70, 350
-signX1, signX2 = 440, 520
+faceX1, faceX2 = 165, 500
+faceY1, faceY2 = 70, 360
+signX1, signX2 = 440, 535
 signY1, signY2 = 380, 750
 
 files = 16
 template = './template.jpg'
 #zdjecia powinny byc w notacji i.jpg dla i = 1, 2, 3...
-dirPath = './images1/'           #input
+dirPath = './images/'           #input
 saveDirPath = './TESTS/' + dirPath  #output
 
 def getName(img):
@@ -33,6 +33,18 @@ def getFace(img): #xD
 
 def getSign(img):
     return img[signX1:signX2, signY1:signY2]
+
+def img2str(img):
+    cv2.imwrite('temp.jpg', img)
+    return pytesseract.image_to_string(Image.open('temp.jpg'))
+
+def connectVerticaly(imgUP, imgDOWN):
+    h1, w1 = imgUP.shape[:2]
+    h2, w2 = imgDOWN.shape[:2]
+    vis = np.zeros(((h1+h2), max(w1,w2)), np.uint8)
+    vis[:h1, :w1] = imgUP
+    vis[h1:h2+h1, :w2] = imgDOWN
+    return vis
 
 def transform2default(img, dst):
     pts1 = np.float32(dst)
@@ -73,7 +85,7 @@ def findObject(img1,img2):
         M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
         matchesMask = mask.ravel().tolist()
 
-        h,w,temp = img1.shape
+        h,w = img1.shape[:2]
         pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
         dst = cv2.perspectiveTransform(pts,M)
         foundedObject = transform2default(img2, dst)
@@ -105,20 +117,30 @@ def main():
     #     cv2.imwrite(path, img3)
     #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
 
-    img1 = cv2.imread(template)
+    fileName = '12.jpg'
 
-    path = dirPath + '4.jpg'
-    img2 = cv2.imread(path)
+    img1 = cv2.imread(template,0)
+    path = dirPath + fileName
+    img2 = cv2.imread(path,0)
     img3 = findObject(img1, img2)
 
-    cv2.imwrite('./face.jpg', getFace(img3))
-    cv2.imwrite('./name.jpg', getName(img3))
-    cv2.imwrite('./subname.jpg', getSubName(img3))
-    cv2.imwrite('./sign.jpg', getSign(img3))
+    print img2str(getName(img3)).upper()
+    print img2str(getSubName(img3)).upper()
 
-    print(pytesseract.image_to_string(Image.open('name.jpg')))
-    print(pytesseract.image_to_string(Image.open('subname.jpg')))
-    print 'done'
 
+    cv2.imshow('xD', connectVerticaly(getName(img3), getSubName(img3)))
+
+    # cv2.imshow('picture', getFace(img3))
+    # cv2.imshow('sign', getSign(img3))
+    # cv2.imshow('name', getName(img3))
+    # cv2.imshow('subname', getSubName(img3))
+    #
+    # cv2.moveWindow('sign',x=100,y=10)
+    # cv2.moveWindow('name',x=100,y=80)
+    # cv2.moveWindow('subname',x=100,y=120)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 main()
+print 'done'
