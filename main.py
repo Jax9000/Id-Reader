@@ -20,13 +20,13 @@ faceY1, faceY2 = 70, 360
 signX1, signX2 = 440, 535
 signY1, signY2 = 380, 750
 
-files = 16
+files = 5
 template = './template.jpg'
 #zdjecia powinny byc w notacji i.jpg dla i = 1, 2, 3...
-dirPath = './images1/'#input
+dirPath = './images2/'#input
 fileName = '7.jpg'
 
-saveDirPath = './TESTS/' + dirPath  #output
+saveDirPath = './TESTS/PDF/' + dirPath  #output
 
 def getName(img):
     return img[nameX1:nameX2, nameY1:nameY2]
@@ -125,6 +125,7 @@ def save2PDF(filePath, imgFace, imgSign, name='none', subName='none'):
     plt.close()
 
              #(template, searchableImg)
+
 def findObject(img1,img2):
     # Initiate SIFT detector
     sift = cv2.xfeatures2d.SIFT_create()
@@ -181,48 +182,50 @@ def main():
     #     cv2.imwrite(path, img3)
     #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
 
-    path = dirPath + fileName
+    for i in range(0,20):
+        fileName = str(i+1) + '.jpg'
+        path = dirPath + fileName
 
-    if not os.path.exists(saveDirPath):
-        os.makedirs(saveDirPath)
-    if not os.path.exists(dirPath):
-        print 'input directory not exist'
-        return 1
-    if not os.path.isfile(path):
-        print path + ' file not exist'
-        return 1
-    if not os.path.isfile(template):
-        print template + ' file not exist'
-        return 1
+        if not os.path.exists(saveDirPath):
+            os.makedirs(saveDirPath)
+        if not os.path.exists(dirPath):
+            print 'input directory not exist'
+            return 1
+        if not os.path.isfile(path):
+            print path + ' file not exist'
+            return 1
+        if not os.path.isfile(template):
+            print template + ' file not exist'
+            return 1
 
-    img1 = cv2.imread(template)
-    img2 = cv2.imread(path)
+        img1 = cv2.imread(template)
+        img2 = cv2.imread(path)
 
-    img3 = findObject(img1, img2)
-    imgFace = getFace(img3)
+        img3 = findObject(img1, img2)
+        imgFace = getFace(img3)
 
-    img3 = binarization(img3)
-    # imgUp = connectVerticaly(getFace(img3), getSign(img3))
-    # imgDown = connectVerticaly(getName(img3), getSubName(img3))
+        img3 = binarization(img3)
 
-    name = (getName(img3))
-    subName = (getSubName(img3))
+        name = (getName(img3))
+        subName = (getSubName(img3))
 
-    print img2str(name).upper()
-    print img2str(subName).upper()
-    # cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
+        print img2str(name).upper()
+        print img2str(subName).upper()
+        # cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
 
-    binImg = binarization(img3)
-    imgBinName = getName(binImg)
-    imgBinSubName = getSubName(binImg)
-    imgBinSign = getSign(binImg)
+        binImg = binarization(img3)
+        imgBinName = getName(img3)
+        imgBinSubName = getSubName(img3)
+        imgBinSign = getSign(img3)
 
-    name = img2str(imgBinName)
-    subName = img2str(imgBinSubName)
+        name = img2str(imgBinName)
+        subName = img2str(imgBinSubName)
 
+        imgBinSign = cv2.cvtColor(imgBinSign, cv2.COLOR_GRAY2RGB)
 
-    imgBinSign = cv2.cvtColor(imgBinSign, cv2.COLOR_GRAY2RGB)
-    save2PDF('myplot.pdf', imgFace, imgBinSign, name, subName)
+        path = saveDirPath + str(i+1) + '.pdf'
+        save2PDF(path, imgFace, imgBinSign, name, subName)
+
     return 0
 
 
