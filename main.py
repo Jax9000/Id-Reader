@@ -19,7 +19,7 @@ signY1, signY2 = 380, 750
 files = 16
 template = './template.jpg'
 #zdjecia powinny byc w notacji i.jpg dla i = 1, 2, 3...
-dirPath = './images/'           #input
+dirPath = './images1/'           #input
 saveDirPath = './TESTS/' + dirPath  #output
 
 def getName(img):
@@ -68,9 +68,6 @@ def binarization(img):
     img = cv2.equalizeHist(img)
     img = cv2.medianBlur(img,3)
 
-    # kernel = np.ones((4,4),np.uint8)
-    # img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-
     h, w = img.shape
     white, black = 255, 0
 
@@ -83,6 +80,7 @@ def binarization(img):
                 val = white
             img.itemset((i,j),val) # img[i][j] = val
 
+    # img = cv2.medianBlur(img,3)
     return img
 
 
@@ -157,7 +155,7 @@ def main():
     #     cv2.imwrite(path, img3)
     #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
 
-    fileName = '14.jpg'
+    fileName = '7.jpg'
     path = dirPath + fileName
 
     if not os.path.exists(saveDirPath):
@@ -177,14 +175,15 @@ def main():
 
     img3 = findObject(img1, img2)
 
+    img3 = binarization(img3)
+    imgUp = connectVerticaly(getFace(img3), getSign(img3))
+    imgDown = connectVerticaly(getName(img3), getSubName(img3))
+
     name = (getName(img3))
     subName = (getSubName(img3))
 
-    imgUp = connectVerticaly(getFace(img3), getSign(img3))
-    imgDown = connectVerticaly(name, subName)
-
-    print img2str(binarization(binarization(name))).upper()
-    print img2str(binarization(subName)).upper()
+    print img2str(name).upper()
+    print img2str(subName).upper()
     cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
 
     cv2.waitKey(0)
