@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
+from matplotlib import rc
 import os
 import pytesseract
 from PIL import Image
@@ -19,7 +23,9 @@ signY1, signY2 = 380, 750
 files = 16
 template = './template.jpg'
 #zdjecia powinny byc w notacji i.jpg dla i = 1, 2, 3...
-dirPath = './images1/'           #input
+dirPath = './images1/'#input
+fileName = '7.jpg'
+
 saveDirPath = './TESTS/' + dirPath  #output
 
 def getName(img):
@@ -96,7 +102,25 @@ def showHistogram(img):
     plt.legend(('cdf','histogram'), loc = 'upper left')
     plt.show()
 
+def save2PDF(filePath, imgName, imgSubName, imgFace, imgSign, name='none', subName='none'):
+    plt.figure(figsize=(3,3))
 
+    texts = [name,subName]
+    imgs = [imgName, imgSubName]
+    for i,img in enumerate(imgs):
+        plt.subplot(2, 2, i+1)
+        plt.axis('off')
+        plt.imshow(img)
+        plt.text(0, 0, texts[i].decode('utf8'))
+
+    imgs = [imgFace, imgSign]
+    for i,img in enumerate(imgs):
+        plt.subplot(2, 2, i+3)
+        plt.axis('off')
+        plt.imshow(img)
+
+    plt.savefig(filePath,dpi=900)
+    plt.close()
 
              #(template, searchableImg)
 def findObject(img1,img2):
@@ -155,7 +179,6 @@ def main():
     #     cv2.imwrite(path, img3)
     #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
 
-    fileName = '7.jpg'
     path = dirPath + fileName
 
     if not os.path.exists(saveDirPath):
@@ -170,24 +193,38 @@ def main():
         print template + ' file not exist'
         return 1
 
-    img1 = cv2.imread(template)
-    img2 = cv2.imread(path)
+    # img1 = cv2.imread(template)
+    # img2 = cv2.imread(path)
+    #
+    # img3 = findObject(img1, img2)
+    #
+    # img3 = binarization(img3)
+    # imgUp = connectVerticaly(getFace(img3), getSign(img3))
+    # imgDown = connectVerticaly(getName(img3), getSubName(img3))
+    #
+    # name = (getName(img3))
+    # subName = (getSubName(img3))
+    #
+    # print img2str(name).upper()
+    # print img2str(subName).upper()
+    # cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
+    #
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-    img3 = findObject(img1, img2)
+    img1 = cv2.imread('name.jpg')
+    img2 = cv2.imread('subname.jpg')
+    img3 = cv2.imread('face.jpg')
+    img4 = cv2.imread('sign.jpg')
 
-    img3 = binarization(img3)
-    imgUp = connectVerticaly(getFace(img3), getSign(img3))
-    imgDown = connectVerticaly(getName(img3), getSubName(img3))
+    name = img2str(img1)
+    subName = img2str(img2)
 
-    name = (getName(img3))
-    subName = (getSubName(img3))
+    img4 = binarization(img4)
+    sign = img4
+    sign = cv2.cvtColor(sign, cv2.COLOR_GRAY2RGB)
 
-    print img2str(name).upper()
-    print img2str(subName).upper()
-    cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    save2PDF('myplot.pdf', img1, img2, img3, img4, name, subName)
     return 0
 
 
