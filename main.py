@@ -64,9 +64,15 @@ def binarization(img):
     elif len(img.shape) != 2:
         print 'wrong input pic binarization()'
         return None
-
+	
+	
+	cv2.imwrite("example_gray.jpg", img2);
     img = cv2.equalizeHist(img)
+
+	cv2.imwrite("example_equalized.jpg", img2);
     img = cv2.medianBlur(img,3)
+
+	cv2.imwrite("example_median.jpg", img2);
 
     h, w = img.shape
     white, black = 255, 0
@@ -79,7 +85,9 @@ def binarization(img):
             else:
                 val = white
             img.itemset((i,j),val) # img[i][j] = val
-
+	
+	
+	cv2.imwrite("example_binarized.jpg", img2);
     # img = cv2.medianBlur(img,3)
     return img
 
@@ -123,6 +131,10 @@ def findObject(img1,img2):
     for m,n in matches:
         if m.distance < 0.7*n.distance:
             good.append(m)
+	
+
+	
+	cv2.imwrite("example_matches.jpg", cv2.drawMatchesKnn(img1, kp1, img2, kp2, good, flags=2));
 
     if len(good)>MIN_MATCH_COUNT:
         src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
@@ -139,7 +151,9 @@ def findObject(img1,img2):
     else:
         print "Not enough matches are found - %d/%d" % (len(good),MIN_MATCH_COUNT)
         matchesMask = None
-
+	
+	
+	cv2.imwrite("example_founded.jpg", foundedObject);
     return foundedObject
 
 
@@ -154,10 +168,9 @@ def main():
     #     path = saveDirPath + str(i+1) + '.jpg'
     #     cv2.imwrite(path, img3)
     #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
-
+	
     fileName = '7.jpg'
     path = dirPath + fileName
-
     if not os.path.exists(saveDirPath):
         os.makedirs(saveDirPath)
     if not os.path.exists(dirPath):
@@ -172,6 +185,8 @@ def main():
 
     img1 = cv2.imread(template)
     img2 = cv2.imread(path)
+	
+	cv2.imwrite("example_image.jpg", img2);
 
     img3 = findObject(img1, img2)
 
@@ -185,7 +200,8 @@ def main():
     print img2str(name).upper()
     print img2str(subName).upper()
     cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
-
+	
+	cv2.imwrite("example_connected.jpg", conenctVerticaly(imgUp, imgDown));
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     return 0
