@@ -89,7 +89,6 @@ def binarization(img):
     # img = cv2.medianBlur(img,3)
     return img
 
-
 def showHistogram(img):
     hist,bins = np.histogram(img.flatten(),256,[0,256])
 
@@ -102,22 +101,22 @@ def showHistogram(img):
     plt.legend(('cdf','histogram'), loc = 'upper left')
     plt.show()
 
-def save2PDF(filePath, imgName, imgSubName, imgFace, imgSign, name='none', subName='none'):
-    plt.figure(figsize=(3,3))
+def save2PDF(filePath, imgFace, imgSign, name='none', subName='none'):
+    plt.figure(figsize=(8,4))
 
-    texts = [name,subName]
-    imgs = [imgName, imgSubName]
-    for i,img in enumerate(imgs):
-        plt.subplot(2, 2, i+1)
-        plt.axis('off')
-        plt.imshow(img)
-        plt.text(0, 0, texts[i].decode('utf8'))
+    text = name + ' ' + subName + '\n\n'
 
-    imgs = [imgFace, imgSign]
-    for i,img in enumerate(imgs):
-        plt.subplot(2, 2, i+3)
-        plt.axis('off')
-        plt.imshow(img)
+    plt.subplot(1,2,1)
+    plt.axis('off')
+    plt.imshow(imgFace)
+
+    plt.subplot(1,2,2)
+    plt.axis('off')
+    plt.text(0,0, text.decode('utf8'))
+
+    plt.subplot(1,2,2)
+    plt.axis('off')
+    plt.imshow(imgSign)
 
     plt.savefig(filePath,dpi=900)
     plt.close()
@@ -224,7 +223,7 @@ def main():
     sign = img4
     sign = cv2.cvtColor(sign, cv2.COLOR_GRAY2RGB)
 
-    save2PDF('myplot.pdf', img1, img2, img3, img4, name, subName)
+    save2PDF('myplot.pdf', img3, sign, name, subName)
     return 0
 
 
