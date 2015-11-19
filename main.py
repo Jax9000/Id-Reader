@@ -108,6 +108,9 @@ def save2PDF(filePath, imgFace, imgSign, name='none', subName='none'):
 
     plt.subplot(1,2,1)
     plt.axis('off')
+    imgFace = cv2.cvtColor(imgFace, cv2.COLOR_BGR2GRAY)
+    imgFace = cv2.equalizeHist(imgFace)
+    imgFace = cv2.cvtColor(imgFace, cv2.COLOR_GRAY2RGB)
     plt.imshow(imgFace)
 
     plt.subplot(1,2,2)
@@ -192,38 +195,34 @@ def main():
         print template + ' file not exist'
         return 1
 
-    # img1 = cv2.imread(template)
-    # img2 = cv2.imread(path)
-    #
-    # img3 = findObject(img1, img2)
-    #
-    # img3 = binarization(img3)
+    img1 = cv2.imread(template)
+    img2 = cv2.imread(path)
+
+    img3 = findObject(img1, img2)
+    imgFace = getFace(img3)
+
+    img3 = binarization(img3)
     # imgUp = connectVerticaly(getFace(img3), getSign(img3))
     # imgDown = connectVerticaly(getName(img3), getSubName(img3))
-    #
-    # name = (getName(img3))
-    # subName = (getSubName(img3))
-    #
-    # print img2str(name).upper()
-    # print img2str(subName).upper()
+
+    name = (getName(img3))
+    subName = (getSubName(img3))
+
+    print img2str(name).upper()
+    print img2str(subName).upper()
     # cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
-    #
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
-    img1 = cv2.imread('name.jpg')
-    img2 = cv2.imread('subname.jpg')
-    img3 = cv2.imread('face.jpg')
-    img4 = cv2.imread('sign.jpg')
+    binImg = binarization(img3)
+    imgBinName = getName(binImg)
+    imgBinSubName = getSubName(binImg)
+    imgBinSign = getSign(binImg)
 
-    name = img2str(img1)
-    subName = img2str(img2)
+    name = img2str(imgBinName)
+    subName = img2str(imgBinSubName)
 
-    img4 = binarization(img4)
-    sign = img4
-    sign = cv2.cvtColor(sign, cv2.COLOR_GRAY2RGB)
 
-    save2PDF('myplot.pdf', img3, sign, name, subName)
+    imgBinSign = cv2.cvtColor(imgBinSign, cv2.COLOR_GRAY2RGB)
+    save2PDF('myplot.pdf', imgFace, imgBinSign, name, subName)
     return 0
 
 
