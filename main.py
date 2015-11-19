@@ -57,14 +57,22 @@ def connectVerticaly(imgUP, imgDOWN):
 
 def binarization(img):
     if len(img.shape) == 3:
+        for i in range(0, img.shape[0]):
+            for j in range(0, img.shape[1]):
+                img.itemset((i,j,1),255)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     elif len(img.shape) != 2:
         print 'wrong input pic binarization()'
         return None
 
+    img = cv2.equalizeHist(img)
+    img = cv2.medianBlur(img,3)
+
+    # kernel = np.ones((4,4),np.uint8)
+    # img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+
     h, w = img.shape
     white, black = 255, 0
-
 
     # ret3,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     for i in range(0, h):
@@ -73,14 +81,22 @@ def binarization(img):
                 val = black
             else:
                 val = white
-            img.itemset((i,j),val) # img[i][j] = val #
-    kernel = np.ones((4,4),np.uint8)
-    img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+            img.itemset((i,j),val) # img[i][j] = val
 
     return img
 
 
+def showHistogram(img):
+    hist,bins = np.histogram(img.flatten(),256,[0,256])
 
+    cdf = hist.cumsum()
+    cdf_normalized = cdf * hist.max()/ cdf.max()
+
+    plt.plot(cdf_normalized, color = 'b')
+    plt.hist(img.flatten(),256,[0,256], color = 'r')
+    plt.xlim([0,256])
+    plt.legend(('cdf','histogram'), loc = 'upper left')
+    plt.show()
 
 
 
@@ -141,60 +157,43 @@ def main():
     #     cv2.imwrite(path, img3)
     #     print 'progress: ' + str((i+1)/(files*1.0) * 100) + '%' + '  file: ' + str(i+1)
 
-    fileName = '13.jpg'
-    dirPath = './TESTS/images/'
-    img1 = cv2.imread(template)
-
+    fileName = '14.jpg'
     path = dirPath + fileName
-    img2 = cv2.imread(path)
-    cv2.imwrite('./subname.jpg', getSubName(img2))
 
-    img1 = cv2.imread(template)
     if not os.path.exists(saveDirPath):
         os.makedirs(saveDirPath)
     if not os.path.exists(dirPath):
         print 'input directory not exist'
         return 1
+    if not os.path.isfile(path):
+        print path + ' file not exist'
+        return 1
+    if not os.path.isfile(template):
+        print template + ' file not exist'
+        return 1
 
-    if len(img2.shape) == 3:
-        for i in range(0, img2.shape[0]):
-            for j in range(0, img2.shape[1]):
-                img2.itemset((i,j,1),255)
-        img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    img1 = cv2.imread(template)
+    img2 = cv2.imread(path)
 
-    img2 = cv2.medianBlur(img2,3)
-    img2 = cv2.equalizeHist(img2)
+    img3 = findObject(img1, img2)
 
-    hist,bins = np.histogram(img2.flatten(),256,[0,256])
+    name = (getName(img3))
+    subName = (getSubName(img3))
 
-    cdf = hist.cumsum()
-    cdf_normalized = cdf * hist.max()/ cdf.max()
-
-    plt.plot(cdf_normalized, color = 'b')
-    plt.hist(img2
-             .flatten(),256,[0,256], color = 'r')
-    plt.xlim([0,256])
-    plt.legend(('cdf','histogram'), loc = 'upper left')
-    plt.show()
-
-    img2 = binarization(img2)
-    img3 = img2
-    # img3 = findObject(img1, img2)
-    #
-    name = binarization(getName(img3))
-    subName = binarization(getSubName(img3))
-    #
-    imgUp = connectVerticaly(getFace(img3), binarization(getSign(img3)))
+    imgUp = connectVerticaly(getFace(img3), getSign(img3))
     imgDown = connectVerticaly(name, subName)
-    #
-    print img2str(name).upper()
-    print img2str(subName).upper()
+
+    print img2str(binarization(binarization(name))).upper()
+    print img2str(binarization(subName)).upper()
     cv2.imshow('ID', connectVerticaly(imgUp,imgDown))
 
-    cv2.imshow('xD', img2)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    return 0
 
 
-main()
-print 'done'
+ret = main()
+if ret == 0:
+    print 'done'
+else:
+    print 'error'
